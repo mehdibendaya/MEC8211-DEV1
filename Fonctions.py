@@ -16,8 +16,8 @@ def C_analytique(prm):
         Sortie :
         - y : vecteur contenant la valeur numérique de la fonction """
         r = np.linspace(0, prm.R, prm.n)
-        y = (0.25*(prm.S/prm.D_eff)*prm.R*prm.R*(((r*r)/(prm.R*prm.R))-1))+prm.Ce
-        
+        y=(0.25*(prm.S/prm.D_eff)*(prm.R*prm.R)*(((r*r)/(prm.R*prm.R))-1))+prm.Ce
+          
         return r,y
  
 
@@ -29,9 +29,9 @@ def C_analytique(prm):
 
 
 def PbB(prm):
-    """ Fonction qui résout le systeme  pour le deuxième cas
+    """ Fonction qui résout le systeme  
     Entrées:
-        - prm : vecteur contenant la position 
+        - prm : vecteur contenant la parametres globaux du systeme
 
     Sorties :
         - c : Matrice (array) qui contient la solution numérique
@@ -48,17 +48,22 @@ def PbB(prm):
     tps=[0]
     err_t_tdt=10
     # Remplissage du centre de la matrice A et du vecteur b
-    c_t=C_analytique(prm)[1]
-    # b=7
-    # a=(prm.Ce-b)/prm.R
-    # c_t[:-1] = [a*r[i]+b for i in range(n-1)]
-    # c_t[-1]=prm.Ce
+    # c_t=C_analytique(prm)[1]+0.5*np.ones(prm.n)
+    c_t=np.ones(n)
+    bb=7
+    a=(prm.Ce-bb)/prm.R
+    c_t[:-1] = [a*r[i]+bb for i in range(n-1)]
+    c_t[-1]=prm.Ce
     c=[c_t]
-    # Remplissage du centre de la matrice A et du vecteur b    
-    for i in range(1, prm.n-1):
-        A[i, i+1] = -dt*D_eff*(1/((r[i]*dr))+1/dr**2)
-        A[i, i] = 1+D_eff*dt*(1/(r[i]*dr)+2/dr**2)
-        A[i, i-1] = -dt*D_eff*(1/dr**2)
+    # Remplissage du centre de la matrice A et du vecteur b   
+    dr_inv=1/dr
+    dt_D_eff=dt*D_eff
+    dr2_inv=1/dr**2
+    
+    for i in range(1, n-1):
+        A[i, i+1] = -dt_D_eff*(dr_inv/r[i]+dr2_inv)
+        A[i, i] = 1+dt_D_eff*(dr_inv/r[i]+2*dr2_inv)
+        A[i, i-1] = -dt_D_eff*dr2_inv
     
     A[-1, -1] = 1
     A[0, 0] = -3
@@ -75,10 +80,12 @@ def PbB(prm):
 
         # Résolution du système matriciel
         c_tdt = np.linalg.solve(A, b)
-        err_t_tdt=np.linalg.norm(c_t-c_tdt)
-        c_t[:]=c_tdt[:]
+        err_t_tdt=np.linalg.norm((c_t-c_tdt)/c_t)
+        c_t=c_tdt
         t+=prm.dt
         tps.append(t)
+        print(err_t_tdt)
+        # print(A)
     return c_tdt,tps
 
 def PbF(prm):
