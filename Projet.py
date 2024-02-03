@@ -15,16 +15,16 @@ class param():
     Ce=12
     D_eff=10**-10
     dr=0.0001
-    dt=0.001
+    dt=0.01
     n  = int(R/dr)
-    err_t_tdt=0.00001
+    err_t_tdt=10**-7
     
     
 prmPB=param()    
 plt.figure() 
 plt.grid()   
 r,C_analy=C_analytique(prmPB) 
-# plt.plot(r,C_analy) 
+plt.plot(r,C_analy) 
 
 C_num,tps=PbB(prmPB)
 plt.plot(r,C_num) 

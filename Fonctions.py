@@ -73,7 +73,6 @@ def PbB(prm):
     
     while err_t_tdt>prm.err_t_tdt:
         
-        b = np.zeros(n)
         b[1:n-1]=-dt*prm.S+c_t[1:n-1]
         b[0] = 0
         b[-1] = prm.Ce
@@ -84,7 +83,6 @@ def PbB(prm):
         c_t=c_tdt
         t+=prm.dt
         tps.append(t)
-        print(err_t_tdt)
         # print(A)
     return c_tdt,tps
 
