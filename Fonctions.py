@@ -10,11 +10,13 @@ import numpy as np
 
 def C_analytique(prm):
         
-        """ Fonction qui calcule f(x) pour le premier cas
+        """ Fonction qui calcule la solution analytique
         Entrée : 
-        - x : vecteur de position 
+        - prm : classe contenant les donnees du probleme
         Sortie :
-        - y : vecteur contenant la valeur numérique de la fonction """
+        - y : vecteur contenant la valeur numérique de la fonction 
+        - r : vecteur contenant le domaine descretise 
+        """
         r = np.linspace(0, prm.R, prm.n)
         y=(0.25*(prm.S/prm.D_eff)*(prm.R*prm.R)*(((r*r)/(prm.R*prm.R))-1))+prm.Ce
           
