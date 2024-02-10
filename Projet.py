@@ -207,7 +207,7 @@ def PartieE_S():
     plt.xlabel("$\Delta$r [$m^{-1}$]")
     plt.ylabel("C [mol/$m^{3}$]")
     plt.title("Profil de concentration en fonction de $\Delta$r")
-    plt.savefig('Ordre2_C_dr', dpi=1000)
+    plt.savefig('Ordre1_C_dr', dpi=1000)
     
 '''# ==========================================================================
 # =============================================================================
