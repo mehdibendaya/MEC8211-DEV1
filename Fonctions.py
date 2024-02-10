@@ -51,11 +51,9 @@ def PbB(prm):
     tps=[0]
     err_t_tdt=10
     # Remplissage du centre de la matrice A et du vecteur b
-    # c_t=C_analytique(prm)[1]+0.5*np.ones(prm.n)
+
     c_t=np.ones(n)
-    bb=7
-    a=(prm.Ce-bb)/prm.R
-    c_t[:-1] = [a*r[i]+bb for i in range(n-1)]
+    c_t[:-1] = [0 for i in range(n-1)]
     c_t[-1]=prm.Ce
     c=[c_t]
     # Remplissage du centre de la matrice A et du vecteur b    
@@ -75,9 +73,20 @@ def PbB(prm):
     
     i=0
     start = time()
+    
+    
+    b[1:n-1]=-dt*prm.S+c_t[1:n-1]
+    b[0] = 0
+    b[-1] = prm.Ce
+
+    # Résolution du système matriciel
+    c_tdt = np.linalg.solve(A, b)
+    c_t=c_tdt
+    t+=prm.dt
+    tps.append(t)
+    
     while err_t_tdt>prm.err_t_tdt:
         
-        b = np.zeros(n)
         b[1:n-1]=-dt*prm.S+c_t[1:n-1]
         b[0] = 0
         b[-1] = prm.Ce
@@ -122,9 +131,7 @@ def PbB_S(prm):
     # Remplissage du centre de la matrice A et du vecteur b
     # c_t=C_analytique(prm)[1]+0.5*np.ones(prm.n)
     c_t=np.ones(n)
-    bb=7
-    a=(prm.Ce-bb)/prm.R
-    c_t[:-1] = [a*r[i]+bb for i in range(n-1)]
+    c_t[:-1] = [0 for i in range(n-1)]
     c_t[-1]=prm.Ce
     c=[c_t]
     # Remplissage du centre de la matrice A et du vecteur b    
@@ -144,6 +151,18 @@ def PbB_S(prm):
     
     i=0
     start = time()
+    
+    b[1:n-1]=-prm.S
+    b[0] = 0
+    b[-1] = prm.Ce
+
+    # Résolution du système matriciel
+    c_tdt = np.linalg.solve(A, b)
+    c_t=c_tdt
+    t+=prm.dt
+    tps.append(t)
+    
+    
     while err_t_tdt>prm.err_t_tdt:
         
         b = np.zeros(n)
@@ -196,9 +215,9 @@ def PbF(prm):
     err_t_tdt=10
     # Remplissage du centre de la matrice A et du vecteur b
     c_t=np.ones(n)
-    b=7
-    a=(prm.Ce-b)/prm.R
-    c_t = C_analytique(prm)[1]
+    c_t[:-1] = [0 for i in range(n-1)]
+    c_t[-1]=prm.Ce
+    c=[c_t]
 
     # Remplissage du centre de la matrice A et du vecteur b    
     dr_inv=0.5/dr
@@ -215,8 +234,18 @@ def PbF(prm):
     A[0, 1] = 4
     A[0, 2] = -1
     
+    
+    
+    b[1:n-1]=-dt*prm.S+c_t[1:n-1]
+    b[0] = 0
+    b[-1] = prm.Ce
+    c_tdt = np.linalg.solve(A, b)
+    c_t[:]=c_tdt[:]
+    t+=prm.dt
+    tps.append(t)
+    
     while err_t_tdt>prm.err_t_tdt:
-        b = np.zeros(n)
+
         b[1:n-1]=-dt*prm.S+c_t[1:n-1]
         b[0] = 0
         b[-1] = prm.Ce
@@ -254,9 +283,9 @@ def PbF_S(prm):
     err_t_tdt=10
     # Remplissage du centre de la matrice A et du vecteur b
     c_t=np.ones(n)
-    b=7
-    a=(prm.Ce-b)/prm.R
-    c_t = C_analytique(prm)[1]
+    c_t[:-1] = [0 for i in range(n-1)]
+    c_t[-1]=prm.Ce
+    c=[c_t]
 
     # Remplissage du centre de la matrice A et du vecteur b  
     dr_inv=0.5/dr
@@ -272,15 +301,25 @@ def PbF_S(prm):
     A[0, 1] = 4
     A[0, 2] = -1
     
+    
+    b[1:n-1]=-prm.S
+    b[0] = 0
+    b[-1] = prm.Ce
+    c_tdt = np.linalg.solve(A, b)
+    c_t[:]=c_tdt[:]
+    t+=prm.dt
+    tps.append(t)
+    
+    
     while err_t_tdt>prm.err_t_tdt:
-        b = np.zeros(n)
+
         b[1:n-1]=-prm.S
         b[0] = 0
         b[-1] = prm.Ce
         
         # Résolution du système matriciel
         c_tdt = np.linalg.solve(A, b)
-        err_t_tdt=np.linalg.norm(c_t-c_tdt)
+        err_t_tdt=np.linalg.norm((c_tdt-c_t)/c_t)
         c_t[:]=c_tdt[:]
         t+=prm.dt
         tps.append(t)

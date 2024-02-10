@@ -6,7 +6,7 @@ from matplotlib import cm
 import pytest
 from Fonctions import *
 from os import environ
-N_THREADS = '16'
+N_THREADS = '12'
 environ['OMP_NUM_THREADS'] = N_THREADS
 environ['OPENBLAS_NUM_THREADS'] = N_THREADS
 environ['MKL_NUM_THREADS'] = N_THREADS
@@ -194,7 +194,7 @@ def PartieE_S():
     plt.title("Profil de concentration en fonction de dr") 
 # =============================================================================
 # =============================================================================
-# =====================  Premier cas : Schema d'ordre 2  ======================
+# =====================  Deuxieme cas : Schema d'ordre 2  ======================
 # =============================================================================
 # =============================================================================  
     
