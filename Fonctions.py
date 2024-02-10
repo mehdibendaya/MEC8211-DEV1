@@ -83,7 +83,7 @@ def PbB(prm):
 
     # Résolution du système matriciel
     c_tdt = np.linalg.solve(A, b)
-    c_t=c_tdt
+    c_t[:]=c_tdt[:]
     t+=prm.dt
     tps.append(t)
     
@@ -160,7 +160,7 @@ def PbB_S(prm):
 
     # Résolution du système matriciel
     c_tdt = np.linalg.solve(A, b)
-    c_t=c_tdt
+    c_t[:]=c_tdt[:]
     t+=prm.dt
     tps.append(t)
     

@@ -8,6 +8,7 @@ Le projet ce divise 4 sous-programme:
     '''
 from os import environ
 from time import time
+from math import log
 import numpy as np
 import matplotlib.pyplot as plt
 from Fonctions import *
@@ -25,7 +26,7 @@ start = time()
 
 '''Creation d'une classe qui servira pour tous les cas  La classe pourra etre modifier au besoin'''
 class param():
-    S=8*10**-9 #Terme source
+    S=8**-9 #Terme source
     D=1        #Diametre de la colonne
     R=D/2      #Rayon de la colonne
     Ce=12      #Concentration en sel de l'eau
@@ -35,17 +36,17 @@ class param():
     n  = int(R/dr) #Nombre de noeuds
     err_t_tdt=10**-9 #Condition d'arret        
     
-'''prmPB=param()    
+# prmPB=param()    
 # plt.figure() 
 # plt.grid()   
 # r,C_analy=C_analytique(prmPB) 
 # plt.plot(r,C_analy) 
 
-# C_num,tps=Pb_S1(prmPB)
+# C_num,tps=PbF_S(prmPB)
 # plt.plot(r,C_num) 
   
-# duration = time() - start
-# print(f'Took {duration:.3f} seconds')'''
+duration = time() - start
+print(f'Took {duration:.3f} seconds')
 
 
 '''# ==========================================================================
@@ -83,6 +84,7 @@ def partieE():
         r_ordre1.append(r)
         
         epsilon_h=C_num-C_analy
+        
         
         erreur_L1.append(np.sum(abs(epsilon_h))/prm.n)
         erreur_L2.append(np.linalg.norm(epsilon_h))
@@ -127,7 +129,7 @@ def PartieE_S():
     
      # Initialisation des paramètres (Valeurs qui peuvent être modifiées)
     prm = param()
-    dr_testee = [0.1,0.05,0.025,0.01,0.005,0.0025,0.001,0.0008,0.0007,0.0006,0.0005,0.00025,0.0001]   
+    dr_testee = [0.1,0.01,0.005,0.001,0.0005,0.00019] 
       
       
     # Initialisation des vecteurs
@@ -150,12 +152,12 @@ def PartieE_S():
         
         epsilon_h=C_num-C_analy
         
-        erreur_L1.append(np.sum(abs(epsilon_h))/prm.n)
-        erreur_L2.append(np.linalg.norm(epsilon_h))
+        erreur_L1.append(np.sum(abs(epsilon_h))/len(epsilon_h))
+        erreur_L2.append((np.sum(epsilon_h**2)/len(epsilon_h))**0.5)
         erreur_Linf.append(max(abs(epsilon_h)))
         
        
-        
+
     plt.figure()
     # plt.rcParams['text.usetex'] = True
     plt.loglog(dr_testee,erreur_L1,'.')
@@ -164,7 +166,12 @@ def PartieE_S():
     plt.xlabel("dr")
     plt.ylabel("Erreur L1")
     plt.title("Convergence de l'erreur L1 en fonction de dr")
-    print(dr_testee,erreur_L1)
+    print("Erreur L1")
+    for i in range(len(dr_testee)):
+        print(dr_testee[i],erreur_L1[i])
+    for i in range(1,len(dr_testee)):    
+        print(log(erreur_L1[i-1]/erreur_L1[i])/log(dr_testee[i-1]/dr_testee[i]))
+    
     
     plt.figure()
     # plt.rcParams['text.usetex'] = True
@@ -174,7 +181,11 @@ def PartieE_S():
     plt.xlabel("dr")
     plt.ylabel("Erreur L2")
     plt.title("Convergence de l'erreur L2 en fonction de dr")
-    print(dr_testee,erreur_L2)
+    print("Erreur L2")
+    for i in range(len(dr_testee)):
+        print(dr_testee[i],erreur_L2[i])
+    for i in range(len(dr_testee)-1):    
+        print(log(erreur_L2[i-1]/erreur_L2[i])/log(dr_testee[i-1]/dr_testee[i]))
     
     plt.figure()
     # plt.rcParams['text.usetex'] = True
@@ -184,7 +195,8 @@ def PartieE_S():
     plt.xlabel("dr")
     plt.ylabel("Erreur Linf")
     plt.title("Convergence de l'erreur $L_{\infty}$ en fonction de dr")
-    print(dr_testee,erreur_Linf)
+    print("Erreur Linf")
+
     
     plt.figure()
     for i in range(len(c_ordre1)):
@@ -288,7 +300,7 @@ def PartieF_S():
     
      # Initialisation des paramètres (Valeurs qui peuvent être modifiées)
     prm = param()
-    dr_testee = [0.1,0.05,0.025,0.01,0.005,0.0025,0.001,0.0005,0.00025,0.0001,0.00005,0.000025]   
+    dr_testee = [0.001,0.0003,0.00025,0.0002,0.0001]    
       
       
     # Initialisation des vecteurs
@@ -325,7 +337,12 @@ def PartieF_S():
     plt.xlabel("dr")
     plt.ylabel("Erreur L1")
     plt.title("Convergence de l'erreur L1 en fonction de dr")
-    print(dr_testee,erreur_L1)
+    print("Erreur L1")
+    for i in range(len(dr_testee)):
+        print(dr_testee[i],erreur_L1[i])
+    for i in range(1,len(dr_testee)):    
+        print(log(erreur_L1[i-1]/erreur_L1[i])/log(dr_testee[i-1]/dr_testee[i]))
+    
     
     plt.figure()
     # plt.rcParams['text.usetex'] = True
@@ -335,8 +352,12 @@ def PartieF_S():
     plt.xlabel("dr")
     plt.ylabel("Erreur L2")
     plt.title("Convergence de l'erreur L2 en fonction de dr")
-    print(dr_testee,erreur_L2)
-    
+    print("Erreur L2")
+    for i in range(len(dr_testee)):
+        print(dr_testee[i],erreur_L2[i])
+    for i in range(len(dr_testee)-1): 
+        print(log(erreur_L2[i-1]/erreur_L2[i])/log(dr_testee[i-1]/dr_testee[i]))
+        
     plt.figure()
     # plt.rcParams['text.usetex'] = True
     plt.loglog(dr_testee,erreur_Linf,'.')
@@ -345,15 +366,13 @@ def PartieF_S():
     plt.xlabel("dr")
     plt.ylabel("Erreur Linf")
     plt.title("Convergence de l'erreur $L_{\infty}$ en fonction de dr")
-    print(dr_testee,erreur_Linf)
+    
     
     plt.figure()
-    for i in range(len(c_ordre2)):
-        if dr_testee[i] in [0.1,0.01,0.001,0.0001,0.00001]:
-            
+    for i in range(len(c_ordre2)):     
     # plt.rcParams['text.usetex'] = True
-            lab='dr='+str(dr_testee[i])
-            plt.plot(r_ordre2[i],c_ordre2[i],'-.',label=lab)
+       lab='dr='+str(dr_testee[i])
+       plt.plot(r_ordre2[i],c_ordre2[i],'-.',label=lab)
     plt.legend()
     plt.grid()
     plt.xlabel("dr")
