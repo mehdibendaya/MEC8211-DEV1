@@ -112,7 +112,7 @@ def PartieE():
     plt.plot(r,C_analy,'-.',label="Sol analytique",linewidth=1.1)       
     plt.legend()
     plt.grid()
-    plt.xlabel("$\Delta$r [$m$]")
+    plt.xlabel("r [$m$]")
     plt.ylabel("C [mol/$m^{3}$]")
     plt.title("Profil de concentration en fonction de $\Delta$r")
     plt.savefig('Ordre1_C_dr', dpi=1000)
@@ -180,21 +180,38 @@ def PartieE_S():
     plt.xlabel("$\Delta$r")
     plt.ylabel("Erreur")
     plt.legend()
+    plt.grid()
     plt.title("Convergence de l'erreur  en fonction de $\Delta$r")
     plt.savefig('Ordre1_Conv_dr', dpi=1000)
 
     
     plt.figure(2)
     for i in range(len(c_ordre1)):
-        lab='dr='+str(dr_testee[i])
-        plt.plot(r_ordre1[i],c_ordre1[i],'-.',label=lab)
+        if n_test[i] in [20,160,640,5000]:
+            lab='$\Delta$r='+str(dr_testee[i])[:6]+"/ $N_{points}$="+str(n_test[i])
+            plt.plot(r_ordre1[i],c_ordre1[i],'-.',label=lab)
     plt.plot(r,C_analy,'-.',label="Sol analytique",linewidth=1.1)       
     plt.legend()
     plt.grid()
-    plt.xlabel("$\Delta$r [$m$]")
+    plt.xlabel("r [$m$]")
     plt.ylabel("C [mol/$m^{3}$]")
     plt.title("Profil de concentration en fonction de $\Delta$r")
     plt.savefig('Ordre1_C_dr', dpi=1000)
+    
+    plt.figure(3)
+    a,b = np.polyfit(dr_testee[-3:-1], erreur_L2[-3:-1], 1)
+    y=droite(a,b,dr_testee)
+    plt.rcParams['text.usetex'] = True
+ 
+    plt.loglog(dr_testee,erreur_L2,'o',label="$L_{2}$")
+    plt.plot(dr_testee,y,'-.', label="droite de regression pour $\hat{p}$=0.9994")
+    plt.gca().invert_xaxis()
+    plt.grid()
+    plt.xlabel("$\Delta$r [$m$]")
+    plt.ylabel("Erreur")
+    plt.title("Convergence de la norme de l'erreur L2 en fonction de dr")
+    plt.legend() 
+    plt.savefig('Ordre1_regression', dpi=1000)
     
 '''# ==========================================================================
 # =============================================================================
@@ -262,16 +279,17 @@ def PartieF():
     
     plt.figure(2)
     for i in range(len(c_ordre1)):
-        if dr_testee[i] in [0.0003,0.0002,0.0001]:
+        if dr_testee[i] in [0.25,0.0002,0.0001]:
             lab='dr='+str(dr_testee[i])
             plt.plot(r_ordre1[i],c_ordre1[i],'-.',label=lab)
     plt.plot(r,C_analy,'-.',label="Sol analytique",linewidth=1.1)       
     plt.legend()
     plt.grid()
-    plt.xlabel("$\Delta$r [$m$]")
+    plt.xlabel("r [$m$]")
     plt.ylabel("C [mol/$m^{3}$]")
     plt.title("Profil de concentration en fonction de $\Delta$r")
     plt.savefig('Ordre2_C_dr', dpi=1000)
+    
     
 
 '''# ==========================================================================
@@ -340,24 +358,36 @@ def PartieF_S():
     plt.xlabel("$\Delta$r")
     plt.ylabel("Erreur")
     plt.legend()
+    plt.grid()
     plt.title("Convergence de l'erreur  en fonction de dr")
     plt.savefig('Ordre2_Conv_dr', dpi=1000)
     
    
-    
     plt.figure(2)
-    plt.rcParams['text.usetex'] = True
-    for i in range(len(c_ordre2)):     
-    
-       lab='dr='+str(dr_testee[i])
-       plt.plot(r_ordre2[i],c_ordre2[i],label=lab)
+    for i in range(len(c_ordre2)):
+        if n_test[i] in [6,12,24,48,96,128]:
+            lab='$\Delta$r='+str(dr_testee[i])[:6]+"/ $N_{points}$="+str(n_test[i])
+            plt.plot(r_ordre2[i],c_ordre2[i],'-.',label=lab)
     plt.plot(r,C_analy,'-.',label="Sol analytique",linewidth=1.1)       
     plt.legend()
     plt.grid()
-    plt.xlabel("$\Delta$r [$m$]")
+    plt.xlabel("r [$m$]")
     plt.ylabel("C [mol/$m^{3}$]")
     plt.title("Profil de concentration en fonction de $\Delta$r")
-    plt.savefig('Ordre2_C_dr', dpi=1000)
-    
+    plt.savefig('Ordre1_C_dr', dpi=1000)
+
+    plt.figure(3)
+    a,b = np.polyfit(dr_testee[-3:-1], erreur_L2[-3:-1], 1)
+    y=droite(a,b,dr_testee)
+    plt.rcParams['text.usetex'] = True
+    plt.loglog(dr_testee,erreur_L2,'o',label="$L_{2}$")
+    plt.plot(dr_testee,y,'-.', label="droite de regression pour $\hat{p}$=2")
+    plt.gca().invert_xaxis()
+    plt.grid()
+    plt.xlabel("$\Delta$r [$m$]")
+    plt.ylabel("Erreur")
+    plt.title("Convergence de la norme de l'erreur L2 en fonction de dr")
+    plt.legend()    
+    plt.savefig('Ordre2_regression', dpi=1000)
 # print("Veuillez attendre la vérification du code est en cours.")    
 unittest.main(module=__name__)  
