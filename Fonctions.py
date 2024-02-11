@@ -22,7 +22,19 @@ def C_analytique(prm):
           
         return r,y
  
-
+def C_analytique2(prm,n):
+        
+        """ Fonction qui calcule la solution analytique
+        Entrée : 
+        - prm : classe contenant les donnees du probleme
+        Sortie :
+        - y : vecteur contenant la valeur numérique de la fonction 
+        - r : vecteur contenant le domaine descretise 
+        """
+        r = np.linspace(0, prm.R, n)
+        y=(0.25*(prm.S/prm.D_eff)*(prm.R*prm.R)*(((r*r)/(prm.R*prm.R))-1))+prm.Ce
+          
+        return y,r
 # =============================================================================
 # =============================================================================
 # =====================  Premier cas : Schema d'ordre 1  ======================
@@ -39,25 +51,24 @@ def PbB(prm):
         - prm : vecteur contenant la parametres globaux du systeme
 
     Sorties :
-        - c : Matrice (array) qui contient la solution numérique
+        - c_tdt : Matrice (array) qui contient la solution numérique la plus a jour
         - tps : vecteur (liste) qui contient les différents temps de résolution"""        
 
     dr = prm.dr #Pas en espace
-    dt = prm.dt
-    D_eff=prm.D_eff
-    n  = prm.n
+    dt = prm.dt #Pas en temps
+    D_eff=prm.D_eff 
+    n  = prm.n  #Nombre de noeuds
     r = np.linspace(0, prm.R, n) #Discrétisation en espace
     A = np.zeros([prm.n, prm.n]) #Matrice A
     b = np.zeros(prm.n) #Vecteur b
-    t=0   
+    t=0         #Temps intial
     tps=[0]
-    err_t_tdt=10
-    # Remplissage du centre de la matrice A et du vecteur b
-
+    #Initialisation de l'erreur
+    err_t_tdt=10 
+    # Initialisation de c_t
     c_t=np.ones(n)
     c_t[:-1] = [0 for i in range(n-1)]
     c_t[-1]=prm.Ce
-    c=[c_t]
     # Remplissage du centre de la matrice A et du vecteur b    
     dr_inv=1/dr
     dt_D_eff=dt*D_eff
@@ -68,123 +79,92 @@ def PbB(prm):
         A[i, i] = 1+dt_D_eff*(dr_inv/r[i]+2*dr2_inv)
         A[i, i-1] = -dt_D_eff*dr2_inv
     
-    A[-1, -1] = 1
+    #Condition de Dirichlet
+    A[-1, -1] = 1 
+    #Condition de Neumann
     A[0, 0] = -3
     A[0, 1] = 4
     A[0, 2] = -1
     
-    i=0
-    start = time()
-    
-    
-    b[1:n-1]=-dt*prm.S+c_t[1:n-1]
-    b[0] = 0
-    b[-1] = prm.Ce
+    #Calcul du premier pas de temps pour eviter une division par 0
 
-    # Résolution du système matriciel
-    c_tdt = np.linalg.solve(A, b)
+    b[1:n-1]=-dt*prm.S+c_t[1:n-1]
+    b[0] = 0   #Condition de Neumann
+    b[-1] = prm.Ce #Condition de Dirichlet
+    c_tdt = np.linalg.solve(A, b) #Resolution du systeme matriciel
     c_t[:]=c_tdt[:]
-    t+=prm.dt
+    t+=prm.dt #incrementation en temps
     tps.append(t)
+    i=0
     
+    
+    start = time()
     while err_t_tdt>prm.err_t_tdt:
-        
+
         b[1:n-1]=-dt*prm.S+c_t[1:n-1]
         b[0] = 0
         b[-1] = prm.Ce
-
+        
         # Résolution du système matriciel
         c_tdt = np.linalg.solve(A, b)
-        err_t_tdt=np.linalg.norm((c_t-c_tdt)/c_t)
-        c_t=c_tdt
+        #Calcul de l'erreur
+        err_t_tdt=np.linalg.norm(c_t-c_tdt)
+        c_t[:]=c_tdt[:]
+        
         t+=prm.dt
         tps.append(t)
         i+=1
-        if i%10000==0:
+        if i%500000==0:
             duration = time() - start
             print(duration,err_t_tdt)
             start = time()
-        # print(A)
-    return c_tdt,tps
+    return c_tdt   
 
 # ============================================================================= 
 # ==============================Regime stationnaire============================
 # ============================================================================= 
-def PbB_S(prm):
-    from time import time
-    """ Fonction qui résout le systeme  
+def PbB_S(prm,N):
+    """Fonction qui détermine le profil de concetration dans le poteau
+    en utilisant la méthode des différences finies.
+    
     Entrées:
-        - prm : vecteur contenant la parametres globaux du systeme
-
-    Sorties :
-        - c : Matrice (array) qui contient la solution numérique
-        - tps : vecteur (liste) qui contient les différents temps de résolution"""        
-
-    dr = prm.dr #Pas en espace
-    dt = prm.dt #Pas en temps
-    D_eff=prm.D_eff
-    n  = prm.n
-    r = np.linspace(0, prm.R, n) #Discrétisation en espace
-    A = np.zeros([prm.n, prm.n]) #Matrice A
-    b = np.zeros(prm.n) #Vecteur b
-    t=0                 #Temps initial
-    tps=[0]             #Temps initial
-    err_t_tdt=10            
-    # Remplissage du centre de la matrice A et du vecteur b
-    # c_t=C_analytique(prm)[1]+0.5*np.ones(prm.n)
-    c_t=np.ones(n)
-    c_t[:-1] = [0 for i in range(n-1)]
-    c_t[-1]=prm.Ce
-    c=[c_t]
-    # Remplissage du centre de la matrice A et du vecteur b    
+        - prm : Objet class parametres()
+            - S : Terme source [mol/m3/s]
+            - D : Diametre de la colonne [m]
+            - R=D/2 :Rayon de la colonne [m]
+            - Ce : Concentration en sel de l'eau [mol/m3]
+            - D_eff : Coefficient de diffusion du sel dans le beton [m2/s]
+            
+    Sorties (dans l'ordre énuméré ci-bas):
+        - Vecteur (array) composée de la concentration en chaque noeud
+        - Vecteur (array) composée des points sur le long du rayon
+    """
     
-    dr_inv=1/dr
-    dr2_inv=1/dr**2
-    
-    for i in range(1, n-1):
-        A[i, i+1] = -D_eff*(dr_inv/r[i]+dr2_inv)
-        A[i, i] = D_eff*(dr_inv/r[i]+2*dr2_inv)
-        A[i, i-1] = -D_eff*dr2_inv
-    
+    dr=prm.R/(N - 1)
+    r=np.linspace(0, prm.R, N)
+    b=np.zeros(N)
+    #b[0]=0 #condition deja remplie par la nature de b
+    b[-1]=prm.Ce
+    A=np.zeros([N,N]) #ou A=np.zeros(shape=(N,N))
     A[-1, -1] = 1
     A[0, 0] = -3
     A[0, 1] = 4
     A[0, 2] = -1
     
-    i=0
-    start = time()
+    dr_inv=1/dr
+    dr2_inv=1/dr**2
     
-    b[1:n-1]=-prm.S
-    b[0] = 0
-    b[-1] = prm.Ce
-
-    # Résolution du système matriciel
-    c_tdt = np.linalg.solve(A, b)
-    c_t[:]=c_tdt[:]
-    t+=prm.dt
-    tps.append(t)
-    
-    
-    # while err_t_tdt>prm.err_t_tdt:
-        
-    #     b = np.zeros(n)
-    #     b[1:n-1]=-prm.S
-    #     b[0] = 0
-    #     b[-1] = prm.Ce
-
-    #     # Résolution du système matriciel
-    #     c_tdt = np.linalg.solve(A, b)
-    #     err_t_tdt=np.linalg.norm((c_t-c_tdt)/c_t)
-    #     c_t=c_tdt
-    #     t+=prm.dt
-    #     tps.append(t)
-    #     i+=1
-    #     if i%10000==0:
-    #         duration = time() - start
-    #         print(duration,err_t_tdt)
-    #         start = time()
-        # print(A)
-    return c_tdt,tps
+    for i in range(1,N-1):
+        A[i,i-1]=dr2_inv
+        A[i,i]=-(dr_inv/r[i]+2*dr2_inv)
+        A[i,i+1]=(dr_inv/r[i]+dr2_inv)
+        b[i]=prm.S/prm.D_eff
+    C_num=np.linalg.tensorsolve(A,b)
+    print("C_num:",C_num)
+    print("r:",r)
+    print("dr:",dr)
+   
+    return C_num,r,dr
 
 # =============================================================================
 # =============================================================================
@@ -203,24 +183,23 @@ def PbF(prm):
         - prm : vecteur contenant la position 
 
     Sorties :
-        - c : Matrice (array) qui contient la solution numérique
+        - c_tdt : Matrice (array) qui contient la solution numérique la plus a jour
         - tps : vecteur (liste) qui contient les différents temps de résolution"""        
 
     dr = prm.dr #Pas en espace
-    dt = prm.dt
-    D_eff=prm.D_eff
-    n  = prm.n
+    dt = prm.dt #Pas en temps
+    D_eff=prm.D_eff 
+    n  = prm.n  #Nombre de noeuds
     r = np.linspace(0, prm.R, n) #Discrétisation en espace
     A = np.zeros([prm.n, prm.n]) #Matrice A
     b = np.zeros(prm.n) #Vecteur b
-    t=0   
+    t=0         #Temps intial
     tps=[0]
-    err_t_tdt=10
+    err_t_tdt=10 #Initialisation de l'erreur
     # Initialisation de c_t
     c_t=np.ones(n)
     c_t[:-1] = [0 for i in range(n-1)]
     c_t[-1]=prm.Ce
-    c=[c_t]
 
     # Remplissage du centre de la matrice A et du vecteur b    
     dr_inv=0.5/dr
@@ -231,20 +210,22 @@ def PbF(prm):
         A[i, i+1] = -dt_D_eff*(dr_inv/r[i]+dr2_inv)
         A[i, i] = 1+dt_D_eff*(2*dr2_inv)
         A[i, i-1] = -dt*D_eff*(dr2_inv-dr_inv/r[i])
-    
-    A[-1, -1] = 1
+    #Condition de Dirichlet
+    A[-1, -1] = 1 
+    #Condition de Neumann
     A[0, 0] = -3
     A[0, 1] = 4
     A[0, 2] = -1
     
     
-    
+    #Calcul du premier pas de temps pour eviter une division par 0
+
     b[1:n-1]=-dt*prm.S+c_t[1:n-1]
-    b[0] = 0
-    b[-1] = prm.Ce
-    c_tdt = np.linalg.solve(A, b)
+    b[0] = 0   #Condition de Neumann
+    b[-1] = prm.Ce #Condition de Dirichlet
+    c_tdt = np.linalg.solve(A, b) #Resolution du systeme matriciel
     c_t[:]=c_tdt[:]
-    t+=prm.dt
+    t+=prm.dt #incrementation en temps
     tps.append(t)
     i=0
     start = time()
@@ -256,8 +237,10 @@ def PbF(prm):
         
         # Résolution du système matriciel
         c_tdt = np.linalg.solve(A, b)
+        #Calcul de l'erreur
         err_t_tdt=np.linalg.norm(c_t-c_tdt)
         c_t[:]=c_tdt[:]
+        
         t+=prm.dt
         tps.append(t)
         i+=1
@@ -271,66 +254,45 @@ def PbF(prm):
 # ============================================================================= 
 # ==============================Regime stationnaire============================
 # ============================================================================= 
-def res(c,prm):
-    r = np.linspace(0, prm.R, n)
+  
+def PbF_S(prm,N):
+    """Fonction qui détermine le profil de concetration dans le poteau
+    en utilisant la méthode des différences finies.
     
-    
-
-def PbF_S(prm):
-    """ Fonction qui résout le systeme  pour le deuxième cas
     Entrées:
-        - prm : vecteur contenant la position 
-
-    Sorties :
-        - c : Matrice (array) qui contient la solution numérique
-        - tps : vecteur (liste) qui contient les différents temps de résolution"""        
-
-    dr = prm.dr #Pas en espace
-    dt = prm.dt
-    D_eff=prm.D_eff
-    n  = prm.n
-    r = np.linspace(0, prm.R, n) #Discrétisation en espace
-    A = np.zeros([n, n]) #Matrice A
-    b = np.zeros(n,dtype='float') #Vecteur b
-    err_t_tdt=10
-    # Remplissage du centre de la matrice A et du vecteur b
-    c_t=np.zeros(n,dtype='float')
-    c_t[-1]=prm.Ce
-    # Remplissage du centre de la matrice A et du vecteur b  
-    dr_inv=0.5/dr
-    dr2_inv=1/dr**2
+        - prm : Objet class parametres()
+            - S : Terme source [mol/m3/s]
+            - D : Diametre de la colonne [m]
+            - R=D/2 :Rayon de la colonne [m]
+            - Ce : Concentration en sel de l'eau [mol/m3]
+            - D_eff : Coefficient de diffusion du sel dans le beton [m2/s]
+            
+    Sorties (dans l'ordre énuméré ci-bas):
+        - Vecteur (array) composée de la concentration en chaque noeud
+        - Vecteur (array) composée des points sur le long du rayon
+    """
     
-    for i in range(1, prm.n-1):
-        A[i, i+1] = -D_eff*(dr_inv/r[i] + dr2_inv)
-        A[i, i] = D_eff*(2*dr2_inv)
-        A[i, i-1] = -D_eff*(dr2_inv-dr_inv/r[i])
-    
+    # Fonction à écrire
+    dr=prm.R/(N - 1)
+    r=np.linspace(0, prm.R, N)
+    b=np.zeros(N)
+    #b[0]=0 #condition deja remplie par la nature de b
+    b[-1]=prm.Ce
+    A=np.zeros([N,N]) #ou A=np.zeros(shape=(N,N))
     A[-1, -1] = 1
-    
     A[0, 0] = -3
     A[0, 1] = 4
     A[0, 2] = -1
     
+    dr_inv=0.5/dr
+    dr2_inv=1/dr**2
     
-    b[1:n-1]=-prm.S
-    b[0] = 0
-    b[-1] = prm.Ce
+    for i in range(1,N-1):
+        A[i,i-1]=(dr2_inv-dr_inv/r[i])
+        A[i,i]=-(2*dr2_inv)
+        A[i,i+1]=(dr_inv/r[i] + dr2_inv)
+        b[i]=prm.S/prm.D_eff
+    C_num=np.linalg.tensorsolve(A,b)
     
-    c_tdt = np.linalg.solve(A, b)
-    c_t[:]=c_tdt[:]
-
     
-    
-    while err_t_tdt>prm.err_t_tdt:
-        print('test')
-        b[1:n-1]=-prm.S
-        b[0] = 0
-        b[-1] = prm.Ce
-        
-        # Résolution du système matriciel
-        c_tdt = np.linalg.solve(A, b)
-        err_t_tdt=np.linalg.norm((c_tdt-c_t)/c_t)
-        c_t[:]=c_tdt[:]
-
-
-    return c_tdt
+    return C_num,r,dr
