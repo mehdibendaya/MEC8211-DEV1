@@ -121,15 +121,15 @@ def PbB_S(prm):
         - tps : vecteur (liste) qui contient les différents temps de résolution"""        
 
     dr = prm.dr #Pas en espace
-    dt = prm.dt
+    dt = prm.dt #Pas en temps
     D_eff=prm.D_eff
     n  = prm.n
     r = np.linspace(0, prm.R, n) #Discrétisation en espace
     A = np.zeros([prm.n, prm.n]) #Matrice A
     b = np.zeros(prm.n) #Vecteur b
-    t=0   
-    tps=[0]
-    err_t_tdt=10
+    t=0                 #Temps initial
+    tps=[0]             #Temps initial
+    err_t_tdt=10            
     # Remplissage du centre de la matrice A et du vecteur b
     # c_t=C_analytique(prm)[1]+0.5*np.ones(prm.n)
     c_t=np.ones(n)
@@ -165,24 +165,24 @@ def PbB_S(prm):
     tps.append(t)
     
     
-    while err_t_tdt>prm.err_t_tdt:
+    # while err_t_tdt>prm.err_t_tdt:
         
-        b = np.zeros(n)
-        b[1:n-1]=-prm.S
-        b[0] = 0
-        b[-1] = prm.Ce
+    #     b = np.zeros(n)
+    #     b[1:n-1]=-prm.S
+    #     b[0] = 0
+    #     b[-1] = prm.Ce
 
-        # Résolution du système matriciel
-        c_tdt = np.linalg.solve(A, b)
-        err_t_tdt=np.linalg.norm((c_t-c_tdt)/c_t)
-        c_t=c_tdt
-        t+=prm.dt
-        tps.append(t)
-        i+=1
-        if i%10000==0:
-            duration = time() - start
-            print(duration,err_t_tdt)
-            start = time()
+    #     # Résolution du système matriciel
+    #     c_tdt = np.linalg.solve(A, b)
+    #     err_t_tdt=np.linalg.norm((c_t-c_tdt)/c_t)
+    #     c_t=c_tdt
+    #     t+=prm.dt
+    #     tps.append(t)
+    #     i+=1
+    #     if i%10000==0:
+    #         duration = time() - start
+    #         print(duration,err_t_tdt)
+    #         start = time()
         # print(A)
     return c_tdt,tps
 
@@ -197,6 +197,7 @@ def PbB_S(prm):
 # ============================================================================= 
 
 def PbF(prm):
+    from time import time
     """ Fonction qui résout le systeme  pour le deuxième cas
     Entrées:
         - prm : vecteur contenant la position 
@@ -215,7 +216,7 @@ def PbF(prm):
     t=0   
     tps=[0]
     err_t_tdt=10
-    # Remplissage du centre de la matrice A et du vecteur b
+    # Initialisation de c_t
     c_t=np.ones(n)
     c_t[:-1] = [0 for i in range(n-1)]
     c_t[-1]=prm.Ce
@@ -245,7 +246,8 @@ def PbF(prm):
     c_t[:]=c_tdt[:]
     t+=prm.dt
     tps.append(t)
-    
+    i=0
+    start = time()
     while err_t_tdt>prm.err_t_tdt:
 
         b[1:n-1]=-dt*prm.S+c_t[1:n-1]
@@ -258,12 +260,22 @@ def PbF(prm):
         c_t[:]=c_tdt[:]
         t+=prm.dt
         tps.append(t)
+        i+=1
+        if i%10000==0:
+            duration = time() - start
+            print(duration,err_t_tdt)
+            start = time()
 
     return c_tdt,tps
 
 # ============================================================================= 
 # ==============================Regime stationnaire============================
 # ============================================================================= 
+def res(c,prm):
+    r = np.linspace(0, prm.R, n)
+    
+    
+
 def PbF_S(prm):
     """ Fonction qui résout le systeme  pour le deuxième cas
     Entrées:
@@ -278,17 +290,12 @@ def PbF_S(prm):
     D_eff=prm.D_eff
     n  = prm.n
     r = np.linspace(0, prm.R, n) #Discrétisation en espace
-    A = np.zeros([prm.n, prm.n]) #Matrice A
-    b = np.zeros(prm.n) #Vecteur b
-    t=0   
-    tps=[0]
+    A = np.zeros([n, n]) #Matrice A
+    b = np.zeros(n,dtype='float') #Vecteur b
     err_t_tdt=10
     # Remplissage du centre de la matrice A et du vecteur b
-    c_t=np.ones(n)
-    c_t[:-1] = [0 for i in range(n-1)]
+    c_t=np.zeros(n,dtype='float')
     c_t[-1]=prm.Ce
-    c=[c_t]
-
     # Remplissage du centre de la matrice A et du vecteur b  
     dr_inv=0.5/dr
     dr2_inv=1/dr**2
@@ -299,6 +306,7 @@ def PbF_S(prm):
         A[i, i-1] = -D_eff*(dr2_inv-dr_inv/r[i])
     
     A[-1, -1] = 1
+    
     A[0, 0] = -3
     A[0, 1] = 4
     A[0, 2] = -1
@@ -307,14 +315,14 @@ def PbF_S(prm):
     b[1:n-1]=-prm.S
     b[0] = 0
     b[-1] = prm.Ce
+    
     c_tdt = np.linalg.solve(A, b)
     c_t[:]=c_tdt[:]
-    t+=prm.dt
-    tps.append(t)
+
     
     
     while err_t_tdt>prm.err_t_tdt:
-
+        print('test')
         b[1:n-1]=-prm.S
         b[0] = 0
         b[-1] = prm.Ce
@@ -323,7 +331,6 @@ def PbF_S(prm):
         c_tdt = np.linalg.solve(A, b)
         err_t_tdt=np.linalg.norm((c_tdt-c_t)/c_t)
         c_t[:]=c_tdt[:]
-        t+=prm.dt
-        tps.append(t)
 
-    return c_tdt,tps
+
+    return c_tdt

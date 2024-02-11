@@ -26,13 +26,13 @@ start = time()
 
 '''Creation d'une classe qui servira pour tous les cas  La classe pourra etre modifier au besoin'''
 class param():
-    S=8**-9 #Terme source
+    S=8*10#Terme source
     D=1        #Diametre de la colonne
     R=D/2      #Rayon de la colonne
     Ce=12      #Concentration en sel de l'eau
-    D_eff=10**-10 #Coefficient de diffusion du sel dans le beton
-    dr=0.0001  #Pas en espace
-    dt=0.5*dr**2/(D_eff*10) # Pas en temps
+    D_eff=10 #Coefficient de diffusion du sel dans le beton
+    dr=0.005  #Pas en espace
+    dt=0.5*dr**2/(D_eff*100) # Pas en temps
     n  = int(R/dr) #Nombre de noeuds
     err_t_tdt=10**-7 #Condition d'arret        
     
@@ -68,6 +68,7 @@ def partieE():
     for dr_act in dr_testee:
        
         prm.dr = dr_act
+        prm.n  = int(prm.R/prm.dr)
         print(prm.dr)
         r,C_analy=C_analytique(prm)
         C_num,tps=PbB(prm)
@@ -85,32 +86,15 @@ def partieE():
        
         
     plt.figure()
-    # plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_L1,'.')
+    plt.rcParams['text.usetex'] = True
+    plt.loglog(dr_testee,erreur_L1,'.',label='$L_{1}$')  
+    plt.loglog(dr_testee,erreur_L2,'.',label='$L_{2}$')
+    plt.loglog(dr_testee,erreur_Linf,'.',label='$L_{\infty}$')
     plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("dr")
-    plt.ylabel("Erreur L1")
-    plt.title("Convergence de l'erreur L1 en fonction de dr")
-    
-    plt.figure()
-    # plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_L2,'.')
-    plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("dr")
-    plt.ylabel("Erreur L2")
-    plt.title("Convergence de l'erreur L2 en fonction de dr")
-    print(dr_testee,erreur_L2)
-    
-    plt.figure()
-    # plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_Linf,'.')
-    plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("dr")
-    plt.ylabel("Erreur Linf")
-    plt.title("Convergence de l'erreur $L_{\infty}$ en fonction de dr")
+    plt.xlabel("$\delta$r")
+    plt.ylabel("Erreur")
+    plt.legend()
+    plt.title("Convergence de l'erreur  en fonction de dr")
     
 
 '''# ==========================================================================
@@ -121,10 +105,8 @@ def PartieE_S():
     
      # Initialisation des paramètres (Valeurs qui peuvent être modifiées)
     prm = param()
-    dr_testee = [0.1,0.01,0.001,0.005,0.004,0.003,0.002,0.001,0.0009,
-                 0.0008,0.0007,0.0006,0.0005,0.0004,0.0003,0.0002,0.00019,
-                 0.00018,0.00017,0.00016,0.00015,0.00014,0.00013,0.00012,
-                 0.00011,0.0001]    
+    dr_testee = [0.1,0.01,0.005,0.004,0.003,0.002,0.001,0.0009,
+                 0.0008,0.0007,0.0006,0.0005,0.0004,0.0003,0.00025,0.0002,0.00015,0.0001]    
       
       
     # Initialisation des vecteurs
@@ -137,6 +119,8 @@ def PartieE_S():
     for dr_act in dr_testee:
        
         prm.dr = dr_act
+        prm.n  = int(prm.R/prm.dr)
+        
         print(prm.dr)
         r,C_analy=C_analytique(prm)
         C_num,tps=PbB_S(prm)
@@ -153,31 +137,12 @@ def PartieE_S():
         
        
 
-    plt.figure()
-    plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_L1,'.')
-    plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("$\Delta$r [$m^{-1}$]")
-    plt.ylabel("Erreur $L_{1}$")
-    plt.title("Convergence de l'erreur $L_{1}$ en fonction de $\Delta$r")
-    plt.savefig('Conv_Ordre1_L1', dpi=1000)
     print("Erreur L1")
     for i in range(len(dr_testee)):
         print(dr_testee[i],erreur_L1[i])
     for i in range(1,len(dr_testee)):    
         print(log(erreur_L1[i-1]/erreur_L1[i])/log(dr_testee[i-1]/dr_testee[i]))
     
-    
-    plt.figure()
-    plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_L2,'.')
-    plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("$\Delta$r [$m^{-1}$]")
-    plt.ylabel("Erreur $L_{2}$")
-    plt.title("Convergence de l'erreur $L_{2}$  en fonction de $\Delta$r")
-    plt.savefig('Conv_Ordre1_L2', dpi=1000)
     print("Erreur L2")
     for i in range(len(dr_testee)):
         print(dr_testee[i],erreur_L2[i])
@@ -186,14 +151,15 @@ def PartieE_S():
     
     plt.figure()
     plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_Linf,'.')
+    plt.loglog(dr_testee,erreur_L1,'.',label='$L_{1}$')  
+    plt.loglog(dr_testee,erreur_L2,'.',label='$L_{2}$')
+    plt.loglog(dr_testee,erreur_Linf,'.',label='$L_{\infty}$')
     plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("$\Delta$r [$m^{-1}$]")
-    plt.ylabel("Erreur $L_{\infty}$")
-    plt.title("Convergence de l'erreur $L_{\infty}$ en fonction de $\Delta$r")
-    plt.savefig('Conv_Ordre1_Linf', dpi=1000)
-    print("Erreur Linf")
+    plt.xlabel("$\delta$r")
+    plt.ylabel("Erreur")
+    plt.legend()
+    plt.title("Convergence de l'erreur  en fonction de dr")
+    plt.savefig('Ordre1_Conv_dr', dpi=1000)
 
     
     plt.figure()
@@ -220,7 +186,7 @@ def PartieF():
     
     '''Initialisation des paramètres (Valeurs qui peuvent être modifiées)'''
     prm = param()
-    dr_testee = [0.1,0.05,0.025,0.01]   
+    dr_testee = [0.1,0.04,0.02,0.01,0.005]   
       
       
     '''Initialisation des vecteurs'''
@@ -234,6 +200,7 @@ def PartieF():
     for dr_act in dr_testee:
        
         prm.dr = dr_act
+        prm.n  = int(prm.R/prm.dr)
         print(prm.dr)
         r,C_analy=C_analytique(prm)
         C_num,tps=PbF(prm)
@@ -250,46 +217,40 @@ def PartieF():
         
        
         
-    plt.figure()
-    # plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_L1,'.')
-    plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("dr")
-    plt.ylabel("Erreur L1")
-    plt.title("Convergence de l'erreur L1 en fonction de dr")
-    print(dr_testee,erreur_L1)
+    
+    print("Erreur L2")
+    for i in range(len(dr_testee)):
+        print(dr_testee[i],erreur_L2[i])
+    for i in range(len(dr_testee)-1):    
+        print(log(erreur_L2[i-1]/erreur_L2[i])/log(dr_testee[i-1]/dr_testee[i]))
+    
+    
     
     plt.figure()
-    # plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_L2,'.')
+    plt.rcParams['text.usetex'] = True
+    plt.loglog(dr_testee,erreur_L1,'.',label='$L_{1}$')  
+    plt.loglog(dr_testee,erreur_L2,'.',label='$L_{2}$')
+    plt.loglog(dr_testee,erreur_Linf,'.',label='$L_{\infty}$')
     plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("dr")
-    plt.ylabel("Erreur L2")
-    plt.title("Convergence de l'erreur L2 en fonction de dr")
-    print(dr_testee,erreur_L2)
+    plt.xlabel("$\delta$r")
+    plt.ylabel("Erreur")
+    plt.legend()
+    plt.title("Convergence de l'erreur  en fonction de dr")
+    plt.savefig('Ordre2_Conv_dr', dpi=1000)
+
     
     plt.figure()
-    # plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_Linf,'.')
-    plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("dr")
-    plt.ylabel("Erreur Linf")
-    plt.title("Convergence de l'erreur $L_{\infty}$ en fonction de dr")
-    print(dr_testee,erreur_Linf)
-    
-    plt.figure()
-    for i in range(len(c_ordre2)):
-        if dr_testee[i] in [0.1,0.01,0.001,0.0001,0.00001]:
+    for i in range(len(c_ordre1)):
+        if dr_testee[i] in [0.0003,0.0002,0.0001]:
             lab='dr='+str(dr_testee[i])
-            plt.plot(r_ordre2[i],c_ordre2[i],'-.',label=lab)
+            plt.plot(r_ordre1[i],c_ordre1[i],'-.',label=lab)
+    plt.plot(r,C_analy,'-.',label="Sol analytique",linewidth=1.1)       
     plt.legend()
     plt.grid()
-    plt.xlabel("dr")
-    plt.ylabel("C")
-    plt.title("Profil de concentration en fonction de dr") 
+    plt.xlabel("$\Delta$r [$m^{-1}$]")
+    plt.ylabel("C [mol/$m^{3}$]")
+    plt.title("Profil de concentration en fonction de $\Delta$r")
+    plt.savefig('Ordre2_C_dr', dpi=1000)
     
 
 '''# ==========================================================================
@@ -300,10 +261,7 @@ def PartieF_S():
     
      # Initialisation des paramètres (Valeurs qui peuvent être modifiées)
     prm = param()
-    dr_testee = [0.1,0.01,0.001,0.005,0.004,0.003,0.002,0.001,0.0009,
-                 0.0008,0.0007,0.0006,0.0005,0.0004,0.0003,0.0002,0.00019,
-                 0.00018,0.00017,0.00016,0.00015,0.00014,0.00013,0.00012,
-                 0.00011,0.0001]    
+    dr_testee = [0.1,0.01,0.002,0.001,0.0004,0.0002,0.0001,0.00005]    
       
       
     # Initialisation des vecteurs
@@ -316,9 +274,10 @@ def PartieF_S():
     for dr_act in dr_testee:
        
         prm.dr = dr_act
+        prm.n  = int(prm.R/prm.dr)
         print(prm.dr)
         r,C_analy=C_analytique(prm)
-        C_num,tps=PbF_S(prm)
+        C_num=PbF_S(prm)
         
         c_ordre2.append(C_num)
         r_ordre2.append(r)
@@ -332,15 +291,7 @@ def PartieF_S():
         
        
         
-    plt.figure()
-    plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_L1,'.')
-    plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("$\Delta$r [$m^{-1}$]")
-    plt.ylabel("Erreur $L_{1}$")
-    plt.title("Convergence de l'erreur $L_{1}$ en fonction de $\Delta$r")
-    plt.savefig('Conv_Ordre2_L1', dpi=1000)
+    
     print("Erreur L1")
     for i in range(len(dr_testee)):
         print(dr_testee[i],erreur_L1[i])
@@ -348,30 +299,27 @@ def PartieF_S():
         print(log(erreur_L1[i-1]/erreur_L1[i])/log(dr_testee[i-1]/dr_testee[i]))
     
     
-    plt.figure()
-    plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_L2,'.')
-    plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("$\Delta$r [$m^{-1}$]")
-    plt.ylabel("Erreur $L_{2}$")
-    plt.title("Convergence de l'erreur $L_{2}$  en fonction de $\Delta$r")
-    plt.savefig('Conv_Ordre2_L2', dpi=1000)
+
     print("Erreur L2")
     for i in range(len(dr_testee)):
         print(dr_testee[i],erreur_L2[i])
     for i in range(len(dr_testee)-1): 
         print(log(erreur_L2[i-1]/erreur_L2[i])/log(dr_testee[i-1]/dr_testee[i]))
         
+    
     plt.figure()
     plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_Linf,'.')
+    plt.loglog(dr_testee,erreur_L1,'.',label='$L_{1}$')  
+    plt.loglog(dr_testee,erreur_L2,'.',label='$L_{2}$')
+    plt.loglog(dr_testee,erreur_Linf,'.',label='$L_{\infty}$')
     plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("$\Delta$r [$m^{-1}$]")
-    plt.ylabel("Erreur $L_{\infty}$")
-    plt.title("Convergence de l'erreur $L_{\infty}$ en fonction de $\Delta$r")
-    plt.savefig('Conv_Ordre2_Linf', dpi=1000)
+    plt.xlabel("$\delta$r")
+    plt.ylabel("Erreur")
+    plt.legend()
+    plt.title("Convergence de l'erreur  en fonction de dr")
+    plt.savefig('Ordre2_Conv_dr', dpi=1000)
+
+    
     
     plt.figure()
     plt.rcParams['text.usetex'] = True
