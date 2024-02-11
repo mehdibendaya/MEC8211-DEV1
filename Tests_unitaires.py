@@ -11,14 +11,14 @@ from Fonctions import *  # Importation des fonctions pour les tests
 
 # def test_strictement_nulle(self):
 #     prm=param()
-#     result_analytique = C_analytique(prm)
-#     result = PbB(prm)
+#     result_analytique = C_analytique2(prm,N)
+#     result = PbB_S(prm,N)
 #     self.assertEqual(result, result_analytique)  # Vérifie si le résultat est égal au résulat analytique
 
 # def test_diffusion_nulle(self):
 #     prm=param()
-#     result_analytique = C_analytique(prm)
-#     result = PbB(prm)
+#     result_analytique = C_analytique2(prm,N)
+#     result = PbB_S(prm,N)
 #     self.assertEqual(result, result_analytique)  # Vérifie si le résultat est égal au résulat analytique
 
 
@@ -48,15 +48,17 @@ class TestFunction(unittest.TestCase):
 
     def test_nombre_element(self):
         prm = param()
-        result_analytique = C_analytique(prm)
-        result = PbB_S(prm)
+        N=100
+        result_analytique = C_analytique2(prm,N)
+        result = PbB_S(prm,N)
         # Vérifie si le résultat a le même nombre d'élément que le résulat analytique
-        self.assertEqual(len(result[0]), len(result_analytique[1]))
+        self.assertEqual(len(result[0]), len(result_analytique[0]))
 
     def test_concentration_nulle(self):
         prm = param()
-        result_analytique = C_analytique(prm)
-        result = PbB_S(prm)
+        N=100
+        result_analytique = C_analytique2(prm,N)
+        result = PbB_S(prm,N)
        # Vérifie si le résultat est à une distance de 1e-7 du résulat analytique
         for pair in zip(result[1], result_analytique[1]):
           self.assertTrue(math.isclose(pair[0], pair[1], abs_tol=1e-7))

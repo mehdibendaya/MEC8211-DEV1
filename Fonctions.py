@@ -160,10 +160,7 @@ def PbB_S(prm,N):
         A[i,i+1]=(dr_inv/r[i]+dr2_inv)
         b[i]=prm.S/prm.D_eff
     C_num=np.linalg.tensorsolve(A,b)
-    print("C_num:",C_num)
-    print("r:",r)
-    print("dr:",dr)
-   
+
     return C_num,r,dr
 
 # =============================================================================

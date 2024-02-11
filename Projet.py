@@ -12,7 +12,8 @@ from math import log
 import numpy as np
 import matplotlib.pyplot as plt
 from Fonctions import *
-from Test_unitaires import *
+from Tests_unitaires import *
+import unittest
 
 
 N_THREADS = '12'
@@ -358,6 +359,5 @@ def PartieF_S():
     plt.title("Profil de concentration en fonction de $\Delta$r")
     plt.savefig('Ordre2_C_dr', dpi=1000)
     
-print("Veuillez attendre la vérification du code est en cours.")    
-test_nombre_element(self) 
-test_concentration_nulle(self)     
+# print("Veuillez attendre la vérification du code est en cours.")    
+unittest.main(module=__name__)  
