@@ -177,7 +177,7 @@ def PartieE_S():
     plt.loglog(dr_testee,erreur_L2,'x-',label='$L_{2}$')
     plt.loglog(dr_testee,erreur_Linf,'x-',label='$L_{\infty}$')
     plt.gca().invert_xaxis()
-    plt.xlabel("$\Delta$r")
+    plt.xlabel("$\Delta$r [m]")
     plt.ylabel("Erreur")
     plt.legend()
     plt.grid()
@@ -195,7 +195,7 @@ def PartieE_S():
     plt.grid()
     plt.xlabel("r [$m$]")
     plt.ylabel("C [mol/$m^{3}$]")
-    plt.title("Profil de concentration en fonction de $\Delta$r")
+    plt.title("Profil de concentration en fonction de r")
     plt.savefig('Ordre1_C_dr', dpi=1000)
     
     plt.figure(3)
@@ -209,7 +209,7 @@ def PartieE_S():
     plt.grid()
     plt.xlabel("$\Delta$r [$m$]")
     plt.ylabel("Erreur")
-    plt.title("Convergence de la norme de l'erreur L2 en fonction de dr")
+    plt.title("Convergence de la norme de l'erreur L2 en fonction de $\Delta$r")
     plt.legend() 
     plt.savefig('Ordre1_regression', dpi=1000)
     
@@ -273,7 +273,7 @@ def PartieF():
     plt.xlabel("$\delta$r")
     plt.ylabel("Erreur")
     plt.legend()
-    plt.title("Convergence de l'erreur  en fonction de dr")
+    plt.title("Convergence de l'erreur  en fonction de $\Delta$r")
     plt.savefig('Ordre2_Conv_dr', dpi=1000)
 
     
@@ -355,11 +355,11 @@ def PartieF_S():
     plt.loglog(dr_testee,erreur_L2,'x-',label='$L_{2}$')
     plt.loglog(dr_testee,erreur_Linf,'x-',label='$L_{\infty}$')
     plt.gca().invert_xaxis()
-    plt.xlabel("$\Delta$r")
+    plt.xlabel("$\Delta$r [m]")
     plt.ylabel("Erreur")
     plt.legend()
     plt.grid()
-    plt.title("Convergence de l'erreur  en fonction de dr")
+    plt.title("Convergence de l'erreur  en fonction de $\Delta$r")
     plt.savefig('Ordre2_Conv_dr', dpi=1000)
     
    
@@ -373,8 +373,8 @@ def PartieF_S():
     plt.grid()
     plt.xlabel("r [$m$]")
     plt.ylabel("C [mol/$m^{3}$]")
-    plt.title("Profil de concentration en fonction de $\Delta$r")
-    plt.savefig('Ordre1_C_dr', dpi=1000)
+    plt.title("Profil de concentration en fonction de r")
+    plt.savefig('Ordre2_C_dr', dpi=1000)
 
     plt.figure(3)
     a,b = np.polyfit(dr_testee[-3:-1], erreur_L2[-3:-1], 1)
@@ -386,7 +386,7 @@ def PartieF_S():
     plt.grid()
     plt.xlabel("$\Delta$r [$m$]")
     plt.ylabel("Erreur")
-    plt.title("Convergence de la norme de l'erreur L2 en fonction de dr")
+    plt.title("Convergence de la norme de l'erreur L2 en fonction de $\Delta$r")
     plt.legend()    
     plt.savefig('Ordre2_regression', dpi=1000)
 # print("Veuillez attendre la vérification du code est en cours.")    
