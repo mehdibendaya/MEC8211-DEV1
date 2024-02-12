@@ -1,3 +1,13 @@
+# =============================================================================
+# =============================================================================
+# ============ MEC 8211 - DEVOIR 1 - Verification de code - H24 ===============
+# Redigé par:
+# Mohammed Mahdi Sahbi Ben Daya
+# Acile Sfeir
+# Alexandre Deschenes
+# =============================================================================
+# =============================================================================
+
 # -*- coding: utf-8 -*-
 """
 Ce code permet de faire des tests unitaires sur l'equation de diffusion de sel dans le beton.
@@ -41,7 +51,7 @@ class param():
     dr = 0.005
     dt = 0.5*dr**2/(D_eff*100)
     n = int(R/dr)
-    err_t_tdt = 10**-5
+    err_t_tdt = 10e-5
 
 
 class TestFunction(unittest.TestCase):

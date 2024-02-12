@@ -1,10 +1,20 @@
+# =============================================================================
+# =============================================================================
+# ============ MEC 8211 - DEVOIR 1 - Verification de code - H24 ===============
+# Redigé par:
+# Mohammed Mahdi Sahbi Ben Daya
+# Acile Sfeir
+# Alexandre Deschenes
+# =============================================================================
+# =============================================================================
+
 # -*- coding: utf-8 -*-
-''' Ce code permet de resoudre l'equation de diffusion de sel dans le beton.
-Le projet ce divise 4 sous-programme:
-    - PartieE() : Schema d'ordre 1 en resolvant le systeme transitoire 
-    - PartieE_S() : Schema d'ordre 1 en resolvant le systeme stationnaire
-    - PartieF() : Schema d'ordre 2 en resolvant le systeme transitoire 
-    - PartieF_S() : Schema d'ordre 2 en resolvant le systeme stationnaire
+''' Ce code permet de resoudre l'equation de diffusion de sel dans le beton par la MDF.
+Le projet se divise 4 sous-programmes appelés du fichier Fonctions.py:
+    - PartieE() : Schema d'ordre 1 resolvant le systeme transitoire 
+    - PartieE_S() : Schema d'ordre 1 resolvant le systeme stationnaire
+    - PartieF() : Schema d'ordre 2 resolvant le systeme transitoire 
+    - PartieF_S() : Schema d'ordre 2 resolvant le systeme stationnaire
     '''
 from os import environ
 from time import time
@@ -26,15 +36,15 @@ environ['NUMEXPR_NUM_THREADS'] = N_THREADS
 
 '''Creation d'une classe qui servira pour tous les cas  La classe pourra etre modifier au besoin'''
 class param():
-    S=8e-9 #Terme source [mol/m3/s]
-    D=1        #Diametre de la colonne [m]
-    R=D/2      #Rayon de la colonne [m]
-    Ce=12      #Concentration en sel de l'eau [mol/m3]
+    S=8e-9      #Terme source [mol/m3/s]
+    D=1         #Diametre de la colonne [m]
+    R=D/2       #Rayon de la colonne [m]
+    Ce=12       #Concentration en sel de l'eau [mol/m3]
     D_eff=1e-10 #Coefficient de diffusion du sel dans le beton [m2/s]
     #Pour regime transitoire    
     dr=0.005  #Pas en espace
     dt=0.5*dr**2/(D_eff*10) # Pas en temps
-    err_t_tdt=10**-7 #Condition d'arret        
+    err_t_tdt=10e-7 #Condition d'arret        
 
 
 '''# ==========================================================================
@@ -44,12 +54,11 @@ class param():
 # =============================================================================  
  
 # ============================================================================= 
-# ==============================Regime transitoire=============================
+# ============================= Regime transitoire ============================
 # =========================================================================='''  
 def PartieE():    
-     
     
-    '''Initialisation des paramètres (Valeurs qui peuvent être modifiées)'''
+    # Initialisation des paramètres
     prm = param()
     dr_testee = [0.05,0.025,0.01,0.005]   
       
@@ -60,6 +69,7 @@ def PartieE():
     erreur_Linf = []
     c_ordre1= []
     r_ordre1= []
+    
     # Calcul de de l'erreur
     for dr_act in dr_testee:
        
@@ -91,7 +101,8 @@ def PartieE():
         print(dr_testee[i],erreur_L2[i])
     for i in range(len(dr_testee)-1):    
         print(log(erreur_L2[i-1]/erreur_L2[i])/log(dr_testee[i-1]/dr_testee[i]))
-       
+        
+    # Graphiques   
     plt.figure()
     plt.rcParams['text.usetex'] = True
     plt.loglog(dr_testee,erreur_L1,'.',label='$L_{1}$')  
@@ -119,12 +130,11 @@ def PartieE():
     
 
 '''# ==========================================================================
-# ==============================Regime stationnaire============================
+# ============================= Regime stationnaire ===========================
 # =========================================================================='''
 def PartieE_S():    
      
-    
-     # Initialisation des paramètres (Valeurs qui peuvent être modifiées)
+     # Initialisation des paramètres
     prm = param()
     n_test=[3,5,10,20,40,80,160,320,640,1280,2560,3000,4000,5000]    
       
@@ -169,8 +179,7 @@ def PartieE_S():
     for i in range(len(dr_testee)-1):    
         print(log(erreur_L2[i-1]/erreur_L2[i])/log(dr_testee[i-1]/dr_testee[i]))
     
-    
-
+    # Graphiques
     plt.figure(1)
     plt.rcParams['text.usetex'] = True
     plt.loglog(dr_testee,erreur_L1,'x-',label='$L_{1}$')  
@@ -217,24 +226,28 @@ def PartieE_S():
 # =============================================================================
 # =====================  Deuxieme cas : Schema d'ordre 2  =====================
 # =============================================================================
-# =========================================================================='''  
+# =============================================================================
+
+# ============================================================================= 
+# ============================= Regime transitoire ============================
+# ==========================================================================''' 
     
 def PartieF():    
      
     
-    '''Initialisation des paramètres (Valeurs qui peuvent être modifiées)'''
+    # Initialisation des paramètres'
     prm = param()
     dr_testee = [0.1,0.04,0.02,0.01,0.005]   
       
       
-    '''Initialisation des vecteurs'''
+    # Initialisation des vecteurs
     erreur_L1 = []
     erreur_L2 = []
     erreur_Linf = []
     c_ordre2= []
     r_ordre2= []   
     
-    ''''Calcul de de l'erreur'''
+    # Calcul de de l'erreur
     for dr_act in dr_testee:
        
         prm.dr = dr_act
@@ -263,7 +276,7 @@ def PartieF():
         print(log(erreur_L2[i-1]/erreur_L2[i])/log(dr_testee[i-1]/dr_testee[i]))
     
     
-    
+    # Graphiques
     plt.figure(1)
     plt.rcParams['text.usetex'] = True
     plt.loglog(dr_testee,erreur_L1,'.',label='$L_{1}$')  
@@ -293,19 +306,20 @@ def PartieF():
     
 
 '''# ==========================================================================
-# ==============================Regime stationnaire============================
+# ============================= Regime stationnaire ===========================
 # =========================================================================='''  
 def PartieF_S():    
      
     
     
-    '''Initialisation des vecteurs'''
+    # Initialisation des vecteurs
     erreur_L1 = []
     erreur_L2 = []
     erreur_Linf = []
     c_ordre2= []
     r_ordre2= [] 
-    # Initialisation des paramètres (Valeurs qui peuvent être modifiées)
+    
+    # Initialisation des paramètres
     prm = param()
     dr_testee = []    
     n_test=[6,12,24,48,96,128]
@@ -348,7 +362,7 @@ def PartieF_S():
     for i in range(len(dr_testee)-1): 
         print(log(erreur_L2[i-1]/erreur_L2[i])/log(dr_testee[i-1]/dr_testee[i]))
         
-    
+    # Graphiques
     plt.figure(1)
     plt.rcParams['text.usetex'] = True
     plt.loglog(dr_testee,erreur_L1,'x-',label='$L_{1}$')  
