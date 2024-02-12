@@ -343,10 +343,6 @@ def PartieF_S():
         erreur_Linf.append(max(abs(epsilon_h)))
 
         
-       
-        
-       
-        
     
     print("Erreur L1")
     for i in range(len(dr_testee)):
