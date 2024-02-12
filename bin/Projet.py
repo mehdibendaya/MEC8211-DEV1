@@ -62,7 +62,6 @@ def PartieE():
     prm = param()
     dr_testee = [0.05,0.025,0.01,0.005]   
       
-      
     # Initialisation des vecteurs
     erreur_L1 = []
     erreur_L2 = []
@@ -83,7 +82,6 @@ def PartieE():
         r_ordre1.append(r)
         
         epsilon_h=C_num-C_analy
-        
         
         erreur_L1.append(np.sum(abs(epsilon_h))/prm.n)
         erreur_L2.append(np.linalg.norm(epsilon_h))
@@ -138,7 +136,6 @@ def PartieE_S():
     prm = param()
     n_test=[3,5,10,20,40,80,160,320,640,1280,2560,3000,4000,5000]    
       
-      
     # Initialisation des vecteurs
     erreur_L1 = []
     erreur_L2 = []
@@ -158,14 +155,11 @@ def PartieE_S():
         r_ordre1.append(r)
         dr_testee.append(dr)
         
-        
         epsilon_h=C_num-C_analy
         
         erreur_L1.append(np.sum(abs(epsilon_h))/len(epsilon_h))
         erreur_L2.append((np.sum(epsilon_h**2)/len(epsilon_h))**0.5)
         erreur_Linf.append(max(abs(epsilon_h)))
-
-    
 
     print("Erreur L1")
     for i in range(len(dr_testee)):
@@ -188,6 +182,7 @@ def PartieE_S():
     plt.gca().invert_xaxis()
     plt.xlabel("$\Delta$r [m]")
     plt.ylabel("Erreur")
+    plt.tick_params(width=1.5, which='both', direction='in', top=True, right=True, length=5)
     plt.legend()
     plt.grid()
     plt.title("Convergence de l'erreur  en fonction de $\Delta$r")
@@ -199,27 +194,42 @@ def PartieE_S():
         if n_test[i] in [20,160,640,5000]:
             lab='$\Delta$r='+str(dr_testee[i])[:6]+"/ $N_{points}$="+str(n_test[i])
             plt.plot(r_ordre1[i],c_ordre1[i],'-.',label=lab)
-    plt.plot(r,C_analy,'-.',label="Sol analytique",linewidth=1.1)       
+    plt.plot(r,C_analy,'-.',label="Sol analytique",linewidth=1.1)  
+    plt.tick_params(width=1.5, which='both', direction='in', top=True, right=True, length=5)
     plt.legend()
     plt.grid()
     plt.xlabel("r [$m$]")
     plt.ylabel("C [mol/$m^{3}$]")
     plt.title("Profil de concentration en fonction de r")
     plt.savefig('Ordre1_C_dr', dpi=1000)
+
     
     plt.figure(3)
-    a,b = np.polyfit(dr_testee[-3:-1], erreur_L2[-3:-1], 1)
-    y=droite(a,b,dr_testee)
+    a,b = np.polyfit(np.log(dr_testee[-4:]), np.log(erreur_L2[-4:]), 1)
+    a1,b1 = np.polyfit((dr_testee[-4:]), (erreur_L2[-4:]), 1)
+    y=droite(a1,b1,dr_testee)
     plt.rcParams['text.usetex'] = True
  
-    plt.loglog(dr_testee,erreur_L2,'o',label="$L_{2}$")
-    plt.plot(dr_testee,y,'-.', label="droite de regression pour $\hat{p}$=0.9994")
+    plt.loglog(dr_testee,erreur_L2,'o',label="L2")
+    plt.plot(dr_testee,y,'-.', label="droite de regression")
+    plt.tick_params(width=1.5, which='both', direction='in', top=True, right=True, length=5)
+
+    # Ajouter des étiquettes et un titre au graphique
+    plt.title('Convergence d\'ordre 2\n de l\'erreur $L_2$ en fonction de $Δr$',
+            fontsize=12, y=1.02)  # Le paramètre y règle la position verticale du titre
+    plt.xlabel('$Δr$ [m]', fontsize=10)
+    plt.ylabel('Erreur $L_2$', fontsize=10)
+    
+    # Afficher l'équation de la régression en loi de puissance
+    equation_text = f'$L_2 = {np.exp(b):.4f} \\times Δr^{{{a:.4f}}}$'
+    equation_text_obj = plt.text(0.05, 0.05, equation_text, fontsize=10, transform=plt.gca().transAxes, color='k')
+
+    # Déplacer la zone de texte
+    equation_text_obj.set_position((0.2, 0.4))
+
     plt.gca().invert_xaxis()
     plt.grid()
-    plt.xlabel("$\Delta$r [$m$]")
-    plt.ylabel("Erreur")
-    plt.title("Convergence de la norme de l'erreur L2 en fonction de $\Delta$r")
-    plt.legend() 
+    plt.legend()
     plt.savefig('Ordre1_regression', dpi=1000)
     
 '''# ==========================================================================
@@ -234,11 +244,9 @@ def PartieE_S():
     
 def PartieF():    
      
-    
     # Initialisation des paramètres'
     prm = param()
     dr_testee = [0.1,0.04,0.02,0.01,0.005]   
-      
       
     # Initialisation des vecteurs
     erreur_L1 = []
@@ -259,22 +267,18 @@ def PartieF():
         c_ordre2.append(C_num)
         r_ordre2.append(r)
         
-        
         epsilon_h=C_num-C_analy
         
         erreur_L1.append(np.sum(abs(epsilon_h))/prm.n)
         erreur_L2.append(np.linalg.norm(epsilon_h))
         erreur_Linf.append(max(abs(epsilon_h)))
         
-       
-        
-    
+      
     print("Erreur L2")
     for i in range(len(dr_testee)):
         print(dr_testee[i],erreur_L2[i])
     for i in range(len(dr_testee)-1):    
         print(log(erreur_L2[i-1]/erreur_L2[i])/log(dr_testee[i-1]/dr_testee[i]))
-    
     
     # Graphiques
     plt.figure(1)
@@ -289,12 +293,11 @@ def PartieF():
     plt.title("Convergence de l'erreur  en fonction de $\Delta$r")
     plt.savefig('Ordre2_Conv_dr', dpi=1000)
 
-    
     plt.figure(2)
-    for i in range(len(c_ordre1)):
+    for i in range(len(c_ordre2)):
         if dr_testee[i] in [0.25,0.0002,0.0001]:
             lab='dr='+str(dr_testee[i])
-            plt.plot(r_ordre1[i],c_ordre1[i],'-.',label=lab)
+            plt.plot(r_ordre2[i],c_ordre2[i],'-.',label=lab)
     plt.plot(r,C_analy,'-.',label="Sol analytique",linewidth=1.1)       
     plt.legend()
     plt.grid()
@@ -310,8 +313,6 @@ def PartieF():
 # =========================================================================='''  
 def PartieF_S():    
      
-    
-    
     # Initialisation des vecteurs
     erreur_L1 = []
     erreur_L2 = []
@@ -326,31 +327,25 @@ def PartieF_S():
 
     # Calcul de de l'erreur
     for n in n_test:
-       
         
         C_analy,r1=C_analytique2(prm,n)
         C_num,r,dr=PbF_S(prm,n)
         
         c_ordre2.append(C_num)
         r_ordre2.append(r)
-        dr_testee.append(dr)
-        
+        dr_testee.append(dr)  
         
         epsilon_h=C_num-C_analy
         
         erreur_L1.append(np.sum(abs(epsilon_h))/len(epsilon_h))
         erreur_L2.append((np.sum(epsilon_h**2)/len(epsilon_h))**0.5)
         erreur_Linf.append(max(abs(epsilon_h)))
-
-        
     
     print("Erreur L1")
     for i in range(len(dr_testee)):
         print(dr_testee[i],erreur_L1[i])
     for i in range(1,len(dr_testee)):    
         print(log(erreur_L1[i-1]/erreur_L1[i])/log(dr_testee[i-1]/dr_testee[i]))
-    
-    
 
     print("Erreur L2")
     for i in range(len(dr_testee)):
@@ -364,6 +359,7 @@ def PartieF_S():
     plt.loglog(dr_testee,erreur_L1,'x-',label='$L_{1}$')  
     plt.loglog(dr_testee,erreur_L2,'x-',label='$L_{2}$')
     plt.loglog(dr_testee,erreur_Linf,'x-',label='$L_{\infty}$')
+    plt.tick_params(width=1.5, which='both', direction='in', top=True, right=True, length=5)
     plt.gca().invert_xaxis()
     plt.xlabel("$\Delta$r [m]")
     plt.ylabel("Erreur")
@@ -383,20 +379,33 @@ def PartieF_S():
     plt.grid()
     plt.xlabel("r [$m$]")
     plt.ylabel("C [mol/$m^{3}$]")
+    plt.tick_params(width=1.5, which='both', direction='in', top=True, right=True, length=5)
     plt.title("Profil de concentration en fonction de r")
     plt.savefig('Ordre2_C_dr', dpi=1000)
 
+    
     plt.figure(3)
-    a,b = np.polyfit(dr_testee[-3:-1], erreur_L2[-3:-1], 1)
-    y=droite(a,b,dr_testee)
+    a,b = np.polyfit(np.log(dr_testee[-4:]), np.log(erreur_L2[-4:]), 1)
+    a1,b1 = np.polyfit((dr_testee[-4:]), (erreur_L2[-4:]), 1)
+    y=droite(a1,b1,dr_testee)
     plt.rcParams['text.usetex'] = True
-    plt.loglog(dr_testee,erreur_L2,'o',label="$L_{2}$")
-    plt.plot(dr_testee,y,'-.', label="droite de regression pour $\hat{p}$=2")
-    plt.gca().invert_xaxis()
-    plt.grid()
-    plt.xlabel("$\Delta$r [$m$]")
-    plt.ylabel("Erreur")
-    plt.title("Convergence de la norme de l'erreur L2 en fonction de $\Delta$r")
+ 
+    plt.loglog(dr_testee,erreur_L2,'o',label="L2")
+    plt.plot(dr_testee,y,'-.', label="droite de regression")
+    plt.tick_params(width=1.5, which='both', direction='in', top=True, right=True, length=5)
+
+    # Ajouter des étiquettes et un titre au graphique
+    plt.title('Convergence d\'ordre 2\n de l\'erreur $L_2$ en fonction de $Δr$',
+            fontsize=12, y=1.02)  # Le paramètre y règle la position verticale du titre
+    plt.xlabel('$Δr$ [m]', fontsize=10)
+    plt.ylabel('Erreur $L_2$', fontsize=10)
+    
+    # Afficher l'équation de la régression en loi de puissance
+    equation_text = f'$L_2 = {np.exp(b):.4f} \\times Δr^{{{a:.4f}}}$'
+    equation_text_obj = plt.text(0.05, 0.05, equation_text, fontsize=10, transform=plt.gca().transAxes, color='k')
+
+    # Déplacer la zone de texte
+    equation_text_obj.set_position((0.2, 0.7))
     plt.legend()    
     plt.savefig('Ordre2_regression', dpi=1000)
 # print("Veuillez attendre la vérification du code est en cours.")    
