@@ -291,10 +291,10 @@ def PartieF():
 
     
     plt.figure(2)
-    for i in range(len(c_ordre1)):
+    for i in range(len(c_ordre2)):
         if dr_testee[i] in [0.25,0.0002,0.0001]:
             lab='dr='+str(dr_testee[i])
-            plt.plot(r_ordre1[i],c_ordre1[i],'-.',label=lab)
+            plt.plot(r_ordre2[i],c_ordre2[i],'-.',label=lab)
     plt.plot(r,C_analy,'-.',label="Sol analytique",linewidth=1.1)       
     plt.legend()
     plt.grid()
