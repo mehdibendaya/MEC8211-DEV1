@@ -1,10 +1,15 @@
+# =============================================================================
+# =============================================================================
+# ============ MEC 8211 - DEVOIR 1 - Verification de code - H24 ===============
+# Redigé par:
+# Mohammed Mahdi Sahbi Ben Daya
+# Acile Sfeir
+# Alexandre Deschenes
+# =============================================================================
+# =============================================================================
+
 # -*- coding: utf-8 -*-
-
 import numpy as np
-
-
-
-
 
 # =============================================================================
 # =============================================================================
@@ -31,6 +36,7 @@ def C_analytique2(prm,n):
         """ Fonction qui calcule la solution analytique
         Entrée : 
         - prm : classe contenant les donnees du probleme
+        - n : nombre de noeuds desires
         Sortie :
         - y : vecteur contenant la valeur numérique de la fonction 
         - r : vecteur contenant le domaine descretise 
@@ -44,7 +50,7 @@ def droite(a,b,x):
      """ Fonction qui calcule l'équation d'une droite
         Entrée :
         - a : un scalaire, la pente
-        - b : un scalaire, la valeurà l'origine
+        - b : un scalaire, la valeur à l'origine
         - x : vecteur des abscisses
         Sortie :
         - y : vecteur de sortie  
@@ -63,7 +69,7 @@ def droite(a,b,x):
 # =============================================================================  
  
 # ============================================================================= 
-# ==============================Regime transitoire=============================
+# ============================ Regime transitoire =============================
 # ============================================================================= 
 def PbB(prm):
     from time import time
@@ -142,11 +148,11 @@ def PbB(prm):
     return c_tdt   
 
 # ============================================================================= 
-# ==============================Regime stationnaire============================
+# ============================= Regime stationnaire ===========================
 # ============================================================================= 
 def PbB_S(prm,N):
     """Fonction qui détermine le profil de concetration dans le poteau
-    en utilisant la méthode des différences finies.
+    en en regime stationnaire en utilisant la méthode des différences finies.
     
     Entrées:
         - prm : Objet class parametres()
@@ -155,26 +161,33 @@ def PbB_S(prm,N):
             - R=D/2 :Rayon de la colonne [m]
             - Ce : Concentration en sel de l'eau [mol/m3]
             - D_eff : Coefficient de diffusion du sel dans le beton [m2/s]
+        - N : scalaire, nombre de noeuds
             
     Sorties (dans l'ordre énuméré ci-bas):
-        - Vecteur (array) composée de la concentration en chaque noeud
-        - Vecteur (array) composée des points sur le long du rayon
+        - C_num : Vecteur (array) composée de la concentration en chaque noeud
+        - r : Vecteur (array) composée des points sur le long du rayon
+        - dr : scalaire, valeur d'un pas
     """
-    
+    # Debut de la fonction
     dr=prm.R/(N - 1)
     r=np.linspace(0, prm.R, N)
+        
+    # Initialisation de la matrice A et du vecteur b (second membre)
     b=np.zeros(N)
-    #b[0]=0 #condition deja remplie par la nature de b
     b[-1]=prm.Ce
     A=np.zeros([N,N]) #ou A=np.zeros(shape=(N,N))
-    A[-1, -1] = 1
+        
+    #Condition de Dirichlet
+    A[-1, -1] = 1 
+    #Condition de Neumann
     A[0, 0] = -3
     A[0, 1] = 4
     A[0, 2] = -1
     
     dr_inv=1/dr
     dr2_inv=1/dr**2
-    
+        
+    # Resolution du systeme matriciel
     for i in range(1,N-1):
         A[i,i-1]=dr2_inv
         A[i,i]=-(dr_inv/r[i]+2*dr2_inv)
@@ -191,7 +204,7 @@ def PbB_S(prm,N):
 # =============================================================================  
  
 # ============================================================================= 
-# ==============================Regime transitoire=============================
+# ============================= Regime transitoire ============================
 # ============================================================================= 
 
 def PbF(prm):
@@ -270,12 +283,12 @@ def PbF(prm):
     return c_tdt,tps
 
 # ============================================================================= 
-# ==============================Regime stationnaire============================
+# ============================= Regime stationnaire ===========================
 # ============================================================================= 
   
 def PbF_S(prm,N):
     """Fonction qui détermine le profil de concetration dans le poteau
-    en utilisant la méthode des différences finies.
+    en en regime stationnaire en utilisant la méthode des différences finies.
     
     Entrées:
         - prm : Objet class parametres()
@@ -284,27 +297,34 @@ def PbF_S(prm,N):
             - R=D/2 :Rayon de la colonne [m]
             - Ce : Concentration en sel de l'eau [mol/m3]
             - D_eff : Coefficient de diffusion du sel dans le beton [m2/s]
+        - N : scalaire, nombre de noeuds
             
     Sorties (dans l'ordre énuméré ci-bas):
-        - Vecteur (array) composée de la concentration en chaque noeud
-        - Vecteur (array) composée des points sur le long du rayon
+        - C_num : Vecteur (array) composée de la concentration en chaque noeud
+        - r : Vecteur (array) composée des points sur le long du rayon
+        - dr : scalaire, valeur d'un pas
     """
     
-    # Fonction à écrire
+    # Debut de la fonction
     dr=prm.R/(N - 1)
     r=np.linspace(0, prm.R, N)
+
+    # Initialisation de la matrice A et du vecteur b (second membre)    
     b=np.zeros(N)
-    #b[0]=0 #condition deja remplie par la nature de b
     b[-1]=prm.Ce
     A=np.zeros([N,N]) #ou A=np.zeros(shape=(N,N))
-    A[-1, -1] = 1
+        
+    #Condition de Dirichlet
+    A[-1, -1] = 1 
+    #Condition de Neumann
     A[0, 0] = -3
     A[0, 1] = 4
     A[0, 2] = -1
     
     dr_inv=0.5/dr
     dr2_inv=1/dr**2
-    
+        
+    # Resolution du systeme matriciel
     for i in range(1,N-1):
         A[i,i-1]=(dr2_inv-dr_inv/r[i])
         A[i,i]=-(2*dr2_inv)
