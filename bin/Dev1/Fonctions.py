@@ -128,7 +128,7 @@ def PbB(prm):
     start = time()
     while err_t_tdt>prm.err_t_tdt:
 
-        b[1:n-1]=-dt*prm.k*c_t[1:n-1]+c_t[1:n-1]
+        b[1:n-1]=-dt*prm.S+c_t[1:n-1]
         b[0] = 0
         b[-1] = prm.Ce
         
@@ -260,10 +260,9 @@ def PbF(prm):
     tps.append(t)
     i=0
     start = time()
-    
-    while t<prm.tf:
+    while err_t_tdt>prm.err_t_tdt:
 
-        b[1:n-1]=-dt*prm.k*c_t[1:n-1]+c_t[1:n-1]
+        b[1:n-1]=-dt*prm.S+c_t[1:n-1]
         b[0] = 0
         b[-1] = prm.Ce
         
